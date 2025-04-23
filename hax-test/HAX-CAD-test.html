@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online CAD Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Basic styles for page transitions */
+        .page {
+            display: none; /* Hide all pages by default */
+            min-height: 100vh; /* Ensure pages take full viewport height */
+        }
+        .page.active {
+            display: flex; /* Show the active page */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        /* Custom font (optional) */
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+        }
+        /* Add some basic error styling */
+        .error-message {
+            color: red;
+            font-size: 0.875rem; /* text-sm */
+            margin-top: 0.25rem; /* mt-1 */
+        }
+         /* Style for the timer */
+        #timer {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 600; /* font-semibold */
+            color: #dc2626; /* red-600 */
+        }
+        /* Loading indicator style */
+        #loadingIndicator {
+            display: none; /* Hidden by default */
+            margin-top: 1rem;
+            color: #4f46e5; /* indigo-600 */
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+
+    <div id="landing-page" class="page active p-6">
+        <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md text-center">
+            <div id="logo" class="mb-4">
+                <img src="./img/logo/LOGO_HAX_GREEN.png" alt="Logo" class="h-12 mx-auto">
+            </div>
+            <h1 class="text-xl font-bold mb-6 text-gray-800">HAX Test Portal</h1>
+            <p class="text-gray-600 text-sm mb-6">
+                Welcome to the HAX CAD Test. Please fill in your details below to start the test. You will have 20 minutes to complete the test once you start.
+                </p>
+            <form id="user-details-form" class="space-y-4">
+                <div>
+                    <label for="userName" class="block text-sm font-medium text-gray-700 text-left">Name</label>
+                    <input type="text" id="userName" name="userName" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Enter your name">
+                    <p id="userNameError" class="error-message text-left"></p>
+                </div>
+                <div>
+                    <label for="userEmail" class="block text-sm font-medium text-gray-700 text-left">Email</label>
+                    <input type="email" id="userEmail" name="userEmail" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Enter your email">
+                     <p id="userEmailError" class="error-message text-left"></p>
+                </div>
+                <div>
+                    <label for="userPhone" class="block text-sm font-medium text-gray-700 text-left">Phone Number</label>
+                    <input type="tel" id="userPhone" name="userPhone" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Enter your phone number">
+                     <p id="userPhoneError" class="error-message text-left"></p>
+                </div>
+                <button type="submit" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                    Start Test
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="test-page" class="page p-6">
+        <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-3xl">
+            <div class="flex justify-between items-center mb-4 border-b pb-4">
+                 <h1 class="text-xl font-bold text-gray-800">Test in Progress</h1>
+                 <div id="timer" class="text-2xl font-semibold text-red-600">20:00</div>
+            </div>
+
+            <div class="mb-6 p-4 bg-gray-50 rounded-md border border-gray-200">
+                <h2 class="text-lg font-semibold mb-2 text-gray-700">Participant Details:</h2>
+                <p class="text-sm text-gray-600"><strong>Name:</strong> <span id="displayUserName"></span></p>
+                <p class="text-sm text-gray-600"><strong>Email:</strong> <span id="displayUserEmail"></span></p>
+                <p class="text-sm text-gray-600"><strong>Phone:</strong> <span id="displayUserPhone"></span></p>
+            </div>
+
+            <div class="mb-6 text-center">
+                <h2 class="text-lg font-semibold mb-3 text-gray-700">Component Drawing:</h2>
+                <p class="text-sm text-gray-600">Create a 3D CAD model based on the 2D drawing below and determine its mass.</p>
+                <p class="text-sm text-gray-600 mb-4">Set the Material as <b>"Plain Carbon Steel"</b></p>
+                <p> </p>
+                <img id="componentImage" src="\img\test-img\Model-Mania-2001-Phase-1.jpg" alt="Component Drawing" class="mx-auto border rounded-md shadow-sm max-w-full h-auto">
+                 </div>
+
+             <form id="mass-submission-form" class="space-y-4">
+                 <div>
+                    <label for="objectMass" class="block text-sm font-medium text-gray-700">Mass of the object rounded off to the nearest integer (in grams):</label>
+                    <input type="number" step="any" id="objectMass" name="objectMass" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Enter calculated mass">
+                     <p id="objectMassError" class="error-message text-left"></p>
+                </div>
+                 <button type="submit" id="submitButton" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
+                    Submit Test
+                </button>
+                 <p id="loadingIndicator" class="text-center">Submitting...</p> </form>
+        </div>
+    </div>
+
+    <div id="submission-page" class="page p-6">
+        <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md text-center">
+            <svg class="mx-auto h-12 w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h1 class="text-2xl font-bold mt-4 mb-4 text-gray-800">Test Submitted!</h1>
+            <p class="text-gray-600">Your test results have been recorded. Thank you for participating.</p>
+            <p id="submissionTimeDetails" class="text-gray-600 mt-4"></p>
+            <p id="submissionErrorDetails" class="error-message mt-4"></p>
+        </div>
+    </div>
+
+    <script>
+        // --- Global Variables ---
+        let userDetails = {}; // To store user name, email, phone
+        let timerInterval; // To store the interval ID for the timer
+        let timeLeft; // Global variable to track remaining time
+        const totalTime = 20 * 60; // 20 minutes in seconds
+        const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7jaefGpyeLjs_cMq31qhkXTGOKeDnTxiZzi551HWK9-FvDqlBDBKOinBaSmddmBOmtw/exec'; // Replace with your URL
+
+        const images = [
+            'HAX-CAD-test-001.jpg',
+            'HAX-CAD-test-002.jpg'
+        ];
+
+        // --- DOM Elements ---
+        const landingPage = document.getElementById('landing-page');
+        const testPage = document.getElementById('test-page');
+        const submissionPage = document.getElementById('submission-page');
+        const userDetailsForm = document.getElementById('user-details-form');
+        const massSubmissionForm = document.getElementById('mass-submission-form');
+        const timerDisplay = document.getElementById('timer');
+        const submitButton = document.getElementById('submitButton');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const submissionErrorDetails = document.getElementById('submissionErrorDetails');
+
+        // Display elements
+        const displayUserName = document.getElementById('displayUserName');
+        const displayUserEmail = document.getElementById('displayUserEmail');
+        const displayUserPhone = document.getElementById('displayUserPhone');
+
+        // Input fields
+        const userNameInput = document.getElementById('userName');
+        const userEmailInput = document.getElementById('userEmail');
+        const userPhoneInput = document.getElementById('userPhone');
+        const objectMassInput = document.getElementById('objectMass');
+
+        // Error message elements
+        const userNameError = document.getElementById('userNameError');
+        const userEmailError = document.getElementById('userEmailError');
+        const userPhoneError = document.getElementById('userPhoneError');
+        const objectMassError = document.getElementById('objectMassError');
+
+        // Image element
+        const componentImage = document.getElementById('componentImage');
+
+        // --- Functions ---
+
+        // Function to switch between pages
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            const pageToShow = document.getElementById(pageId);
+            if (pageToShow) {
+                pageToShow.classList.add('active');
+            } else {
+                console.error("Page not found:", pageId);
+            }
+        }
+
+        // Function to validate email format
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+         // Function to validate phone number (simple example: 10 digits)
+        function isValidPhone(phone) {
+            const phoneRegex = /^\d{10}$/; // Adjust regex as needed for your format
+            return phoneRegex.test(phone);
+        }
+
+        // Function to clear error messages
+        function clearErrors() {
+            userNameError.textContent = '';
+            userEmailError.textContent = '';
+            userPhoneError.textContent = '';
+            objectMassError.textContent = '';
+            submissionErrorDetails.textContent = ''; // Clear submission error too
+             // Remove red borders if any
+            userNameInput.classList.remove('border-red-500');
+            userEmailInput.classList.remove('border-red-500');
+            userPhoneInput.classList.remove('border-red-500');
+            objectMassInput.classList.remove('border-red-500');
+        }
+
+        // Function to start the timer
+        function startTimer() {
+            const startTime = Date.now();
+            localStorage.setItem('timerStartTime', startTime); // Save start time in localStorage
+            localStorage.setItem('timerDuration', totalTime); // Save total duration in localStorage
+
+            updateTimer(); // Update the timer immediately
+            timerInterval = setInterval(updateTimer, 1000); // Update every second
+        }
+
+        // Function to update the timer display
+        function updateTimer() {
+            const startTime = parseInt(localStorage.getItem('timerStartTime'), 10);
+            const duration = parseInt(localStorage.getItem('timerDuration'), 10);
+
+            if (!startTime || !duration) {
+                clearInterval(timerInterval); // Stop the timer if no data is found
+                return;
+            }
+
+            const elapsedTime = Math.floor((Date.now() - startTime) / 1000); // Time elapsed in seconds
+            timeLeft = duration - elapsedTime; // Update the global timeLeft variable
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerDisplay.textContent = "Time's Up!";
+
+                // Inform the user with a non-blocking notification
+                const notification = document.createElement('div');
+                notification.textContent = "Time's up! Submitting your test in 5 seconds...";
+                notification.style.color = 'red';
+                notification.style.fontWeight = 'bold';
+                notification.style.marginTop = '1rem';
+                testPage.appendChild(notification);
+
+                // Automatically submit the test after 5 seconds
+                setTimeout(() => {
+                    handleSubmitTestData(true); // Automatically submit when time is up
+                    clearTimerData(); // Clear timer data from localStorage
+                }, 5000);
+
+                return;
+            }
+
+            // Update the timer display
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        // Function to clear timer data from localStorage
+        function clearTimerData() {
+            localStorage.removeItem('timerStartTime');
+            localStorage.removeItem('timerDuration');
+        }
+
+        // Function to resume the timer on page load
+        function resumeTimer() {
+            const startTime = localStorage.getItem('timerStartTime');
+            const duration = localStorage.getItem('timerDuration');
+
+            if (startTime && duration) {
+                updateTimer(); // Update the timer immediately
+                timerInterval = setInterval(updateTimer, 1000); // Resume the timer
+            }
+        }
+
+        // Function to handle the submission of user details
+        function handleUserDetailsSubmit(event) {
+            event.preventDefault(); // Prevent default form submission
+            clearErrors(); // Clear previous errors
+
+            const name = userNameInput.value.trim();
+            const email = userEmailInput.value.trim();
+            const phone = userPhoneInput.value.trim();
+            let isValid = true;
+
+            // --- Validation ---
+            if (!name) {
+                userNameError.textContent = 'Name is required.';
+                userNameInput.classList.add('border-red-500');
+                isValid = false;
+            }
+            if (!email) {
+                userEmailError.textContent = 'Email is required.';
+                userEmailInput.classList.add('border-red-500');
+                isValid = false;
+            } else if (!isValidEmail(email)) {
+                userEmailError.textContent = 'Please enter a valid email address.';
+                userEmailInput.classList.add('border-red-500');
+                isValid = false;
+            }
+            if (!phone) {
+                userPhoneError.textContent = 'Phone number is required.';
+                userPhoneInput.classList.add('border-red-500');
+                isValid = false;
+            } else if (!isValidPhone(phone)) {
+                userPhoneError.textContent = 'Please enter a valid 10-digit phone number.';
+                userPhoneInput.classList.add('border-red-500');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                return; // Stop if validation fails
+            }
+
+            // Store details
+            userDetails = { name, email, phone };
+
+            // Display details on test page
+            displayUserName.textContent = userDetails.name;
+            displayUserEmail.textContent = userDetails.email;
+            displayUserPhone.textContent = userDetails.phone;
+
+            // --- Select a random image ---
+            const randomIndex = Math.floor(Math.random() * images.length);
+            const randomImage = images[randomIndex];
+            componentImage.src = `./img/test-img/${randomImage}`;
+            componentImage.dataset.identifier = randomImage; // Store identifier as the image name
+
+            // Switch to test page and start timer
+            showPage('test-page');
+            startTimer();
+        }
+
+        // Function to handle the final test data submission
+        function handleSubmitTestData(isTimeout = false) {
+            // If called by form submit event, prevent default page reload
+            if (typeof isTimeout === 'object' && isTimeout.preventDefault) {
+                isTimeout.preventDefault();
+                isTimeout = false; // Reset flag if it was the event object
+            }
+
+            clearErrors(); // Clear previous errors
+
+            const mass = objectMassInput.value.trim();
+            let isValid = true;
+
+            // Only validate mass if it wasn't a timeout submission
+            if (!isTimeout) {
+                if (mass === '') { // Check if mass is empty
+                    objectMassError.textContent = 'Mass value is required.';
+                    objectMassInput.classList.add('border-red-500');
+                    isValid = false;
+                } else if (isNaN(parseFloat(mass))) { // Check if it's not a valid number
+                    objectMassError.textContent = 'Please enter a valid number for mass.';
+                    objectMassInput.classList.add('border-red-500');
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    return; // Stop if validation fails on manual submit
+                }
+            }
+
+            clearInterval(timerInterval); // Stop the timer
+            submitButton.disabled = true; // Disable button to prevent multiple submits
+            objectMassInput.disabled = true; // Disable input
+            loadingIndicator.style.display = 'block'; // Show loading indicator
+
+            // Calculate time taken
+            const timeTaken = isTimeout ? 'Time Up' : `${Math.floor((totalTime - timeLeft) / 60)} minutes and ${(totalTime - timeLeft) % 60} seconds`;
+
+            const submissionData = {
+                timestamp: new Date().toISOString(),
+                name: userDetails.name,
+                email: userDetails.email,
+                phone: userDetails.phone,
+                mass: isTimeout ? 'N/A (Time Up)' : mass, // Use entered mass or indicate time up
+                timeTaken: isTimeout ? 'Time Up' : (totalTime - timeLeft), // Time in seconds
+                imageIdentifier: componentImage.dataset.identifier || componentImage.src // Send identifier or src
+            };
+
+            console.log("Submitting data as form parameters:", submissionData); // Log data being sent
+            console.log("Target URL:", APP_SCRIPT_URL);
+
+            // Check if URL is set
+            if (!APP_SCRIPT_URL || APP_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL') {
+                console.error("Apps Script URL is not set!");
+                alert("Configuration error: Submission URL is missing. Please contact the administrator.");
+                submitButton.disabled = false; // Re-enable button
+                objectMassInput.disabled = false;
+                loadingIndicator.style.display = 'none';
+                return;
+            }
+
+            // --- Actual data submission using fetch ---
+            fetch(APP_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Use 'no-cors' as reading response is unreliable anyway
+                cache: 'no-cache',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                },
+                body: new URLSearchParams(submissionData).toString()
+            })
+            .then(() => {
+                console.log("Fetch request sent (response is opaque). Assuming success.");
+
+                // Update the submission page with time details
+                const submissionTimeDetails = document.getElementById('submissionTimeDetails');
+                submissionTimeDetails.textContent = `Time Taken: ${timeTaken}`;
+
+                showPage('submission-page'); // Switch page
+            })
+            .catch((error) => {
+                console.error('Fetch Network Error:', error);
+                alert('There was a network error submitting your test. Please check your connection and try again, or contact the administrator.');
+                submissionErrorDetails.textContent = `Network error during submission: ${error.message}. Check console for details.`;
+                showPage('submission-page'); // Show submission page with error
+            })
+            .finally(() => {
+                submitButton.disabled = false; // Re-enable button
+                objectMassInput.disabled = !isTimeout; // Re-enable input only if not timed out
+                loadingIndicator.style.display = 'none'; // Hide loading indicator
+            });
+
+            clearTimerData(); // Clear timer data after submission
+        }
+
+        // --- Event Listeners ---
+        userDetailsForm.addEventListener('submit', handleUserDetailsSubmit);
+        massSubmissionForm.addEventListener('submit', handleSubmitTestData);
+        window.addEventListener('load', () => {
+            resumeTimer(); // Resume the timer when the page loads
+        });
+
+        // --- Initial Setup ---
+        showPage('landing-page'); // Show landing page initially
+
+    </script>
+
+</body>
+</html>
